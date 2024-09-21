@@ -1,12 +1,16 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { BasicReportsService } from './basic-reports.service';
 import { Response } from 'express';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('basic-reports')
 export class BasicReportsController {
   constructor(private readonly basicReportsService: BasicReportsService) {}
 
   @Get()
+  @ApiTags('basic-reports') // Swagger
+  @ApiOperation({ summary: 'Reporte básico' }) // Swagger
+  @ApiResponse({ status: 200, description: 'Reporte básico' }) // Swagger
   async hello(@Res() response: Response) {
     const pdfDoc = await this.basicReportsService.hello();
 

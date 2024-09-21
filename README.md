@@ -9,3 +9,13 @@
    ![Config the PostgresDB Server](queries/pg-admin-config.png)
 5. Generate the Prisma client: `npx prisma generate`
 6. Start the server: `pnpm run start:dev`
+
+## Swagger Documentation
+
+- You can view the documentation here: <http://localhost:3000/api/docs>
+
+## Technologies
+
+- Nest v10
+- Swagger
+- PdfMake
