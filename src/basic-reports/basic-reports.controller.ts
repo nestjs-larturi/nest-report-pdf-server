@@ -24,4 +24,22 @@ export class BasicReportsController {
     pdfDoc.pipe(response);
     pdfDoc.end();
   }
+
+  @Get('employment-letter')
+  @ApiTags('basic-reports') // Swagger
+  @ApiOperation({ summary: 'Constancia de Empleo' }) // Swagger
+  @ApiResponse({ status: 200, description: 'Constancia de Empleo' }) // Swagger
+  async employmentLetter(@Res() response: Response) {
+    const pdfDoc = await this.basicReportsService.employmentLetter();
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename=filename.pdf',
+    );
+
+    pdfDoc.info.Title = 'Employment-Letter.pdf';
+    pdfDoc.pipe(response);
+    pdfDoc.end();
+  }
 }
