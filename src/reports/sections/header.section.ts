@@ -19,8 +19,6 @@ interface HeaderOptions {
 export const headerSection = (options: HeaderOptions): Content => {
   const { title, subTitle, showLogo = true, showDate = true } = options;
 
-  console.log(subTitle);
-
   const headerLogo: Content = showLogo ? logo : null;
   const headerDate: Content = showDate
     ? {

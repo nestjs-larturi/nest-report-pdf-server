@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Param, Res } from '@nestjs/common';
 import { BasicReportsService } from './basic-reports.service';
 import { Response } from 'express';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -31,6 +31,31 @@ export class BasicReportsController {
   @ApiResponse({ status: 200, description: 'Constancia de Empleo' }) // Swagger
   async employmentLetter(@Res() response: Response) {
     const pdfDoc = await this.basicReportsService.employmentLetter();
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename=filename.pdf',
+    );
+
+    pdfDoc.info.Title = 'Employment-Letter.pdf';
+    pdfDoc.pipe(response);
+    pdfDoc.end();
+  }
+
+  @Get('employment-letter/:employeeId')
+  @ApiTags('basic-reports') // Swagger
+  @ApiOperation({ summary: 'Constancia de Empleo por Id de Empleado' }) // Swagger
+  @ApiResponse({
+    status: 200,
+    description: 'Constancia de Empleo Id de Empleado',
+  }) // Swagger
+  async employmentLetterByEmployeeId(
+    @Res() response: Response,
+    @Param('employeeId') employeeId: string,
+  ) {
+    const pdfDoc =
+      await this.basicReportsService.employmentLetterByEmployeeId(+employeeId);
 
     response.setHeader('Content-Type', 'application/pdf');
     response.setHeader(
