@@ -4,6 +4,7 @@ import { PrinterService } from '../printer/printer.service';
 import { getHelloWorldReport } from '../reports/hello-world.report';
 import { getEmploymentLetterReport } from 'src/reports/employment-letter.report';
 import { getEmploymentLetterReportById } from 'src/reports';
+import { getCountriesReport } from '../reports/countries.report';
 
 @Injectable()
 export class BasicReportsService extends PrismaClient implements OnModuleInit {
@@ -48,6 +49,12 @@ export class BasicReportsService extends PrismaClient implements OnModuleInit {
       employeeHours: employee.hours_per_day,
       employeeWorkSchedule: employee.work_schedule,
     });
+    const doc = this.printerService.createPdf(docDefinition);
+    return doc;
+  }
+
+  async getCountries() {
+    const docDefinition = getCountriesReport();
     const doc = this.printerService.createPdf(docDefinition);
     return doc;
   }

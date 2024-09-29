@@ -67,4 +67,25 @@ export class BasicReportsController {
     pdfDoc.pipe(response);
     pdfDoc.end();
   }
+
+  @Get('countries')
+  @ApiTags('basic-reports') // Swagger
+  @ApiOperation({ summary: 'Reporte de paises' }) // Swagger
+  @ApiResponse({
+    status: 200,
+    description: 'Reporte de paises',
+  }) // Swagger
+  async countriesReport(@Res() response: Response) {
+    const pdfDoc = await this.basicReportsService.getCountries();
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename=filename.pdf',
+    );
+
+    pdfDoc.info.Title = 'Countries.pdf';
+    pdfDoc.pipe(response);
+    pdfDoc.end();
+  }
 }
