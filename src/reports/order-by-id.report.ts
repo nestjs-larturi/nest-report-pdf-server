@@ -21,7 +21,63 @@ const styles: StyleDictionary = {
   },
 };
 
-export const orderByIdReport = (): TDocumentDefinitions => {
+export interface CompleteOrder {
+  order_id: number;
+  customer_id: number;
+  order_date: Date;
+  customers: Customers;
+  order_details: OrderDetail[];
+}
+
+export interface Customers {
+  customer_id: number;
+  customer_name: string;
+  contact_name: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  country: string;
+}
+
+export interface OrderDetail {
+  order_detail_id: number;
+  order_id: number;
+  product_id: number;
+  quantity: number;
+  products: Products;
+}
+
+export interface Products {
+  product_id: number;
+  product_name: string;
+  category_id: number;
+  unit: string;
+  price: string;
+}
+
+interface ReportValues {
+  title?: string;
+  subTitle?: string;
+  data: CompleteOrder;
+}
+
+export const orderByIdReport = (value: ReportValues): TDocumentDefinitions => {
+  const { data } = value;
+
+  const { customers, order_details, order_id, order_date } = data;
+
+  const subTotal = order_details.reduce(
+    (acc, detail) => acc + detail.quantity * +detail.products.price,
+    0,
+  );
+
+  // Aplico el IVA
+  const total = subTotal * 1.21;
+
+  const updatedDate = new Date(order_date);
+  updatedDate.setDate(order_date.getDate() + 30);
+  const formattedDate = DataFormatter.getDDMMMMYYYY(updatedDate);
+
   return {
     styles: styles,
     header: logo,
@@ -42,11 +98,11 @@ export const orderByIdReport = (): TDocumentDefinitions => {
           {
             text: [
               {
-                text: 'Recibo No#: 10255\n',
+                text: `Recibo No#: ${order_id}\n`,
                 bold: true,
                 style: { fontSize: 14 },
               },
-              `Fecha del recibo: ${DataFormatter.getDDMMMMYYYY(new Date())} \nPagar antes de: ${DataFormatter.getDDMMMMYYYY(new Date())}`,
+              `Fecha del recibo: ${DataFormatter.getDDMMMMYYYY(new Date(order_date))} \nPagar antes de: ${formattedDate}`,
             ],
             alignment: 'right',
           },
@@ -61,7 +117,7 @@ export const orderByIdReport = (): TDocumentDefinitions => {
             text: `Cobrar a:\nRazón Social: `,
           },
           {
-            text: `Juan Perez\n Greenvile 1123`,
+            text: `${customers.contact_name}\n ${customers.address}, ${customers.city}`,
             bold: true,
           },
         ],
@@ -75,36 +131,19 @@ export const orderByIdReport = (): TDocumentDefinitions => {
           widths: [50, '*', 'auto', 'auto', 'auto'],
           body: [
             ['Id', 'Descripcion', 'Cantidad', 'Precio', 'Total'],
-            [
-              '1',
-              'Producto 1',
-              '4',
-              'Precio',
+
+            ...order_details.map((detail) => [
+              detail.order_id.toString(),
+              detail.products.product_name,
+              detail.quantity.toString(),
+              CurrencyFormatter.formatCurrency(+detail.products.price),
               {
-                text: CurrencyFormatter.formatCurrency(100),
+                text: CurrencyFormatter.formatCurrency(
+                  +detail.products.price * detail.quantity,
+                ),
                 alignment: 'right',
               },
-            ],
-            [
-              '1',
-              'Producto 1',
-              '4',
-              'Precio',
-              {
-                text: CurrencyFormatter.formatCurrency(100),
-                alignment: 'right',
-              },
-            ],
-            [
-              '1',
-              'Producto 1',
-              '4',
-              'Precio',
-              {
-                text: CurrencyFormatter.formatCurrency(100),
-                alignment: 'right',
-              },
-            ],
+            ]),
           ],
         },
       },
@@ -123,14 +162,21 @@ export const orderByIdReport = (): TDocumentDefinitions => {
                 [
                   'Subtotal',
                   {
-                    text: CurrencyFormatter.formatCurrency(122),
+                    text: CurrencyFormatter.formatCurrency(subTotal),
+                    alignment: 'right',
+                  },
+                ],
+                [
+                  'Impuestos (21%)',
+                  {
+                    text: CurrencyFormatter.formatCurrency(subTotal * 0.21),
                     alignment: 'right',
                   },
                 ],
                 [
                   { text: 'Total', bold: true },
                   {
-                    text: CurrencyFormatter.formatCurrency(160),
+                    text: CurrencyFormatter.formatCurrency(total),
                     alignment: 'right',
                     bold: true,
                   },
