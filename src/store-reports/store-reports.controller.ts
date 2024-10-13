@@ -30,4 +30,25 @@ export class StoreReportsController {
     pdfDoc.pipe(response);
     pdfDoc.end();
   }
+
+  @Get('svg-charts')
+  @ApiTags('store-reports') // Swagger
+  @ApiOperation({ summary: 'Muestra un svg chart' }) // Swagger
+  @ApiResponse({
+    status: 200,
+    description: 'Muestra un svg chart',
+  }) // Swagger
+  async getSvgChart(@Res() response: Response) {
+    const pdfDoc = await this.storeReportsService.getSvgChart();
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename=filename.pdf',
+    );
+
+    pdfDoc.info.Title = 'SVG-Chart.pdf';
+    pdfDoc.pipe(response);
+    pdfDoc.end();
+  }
 }
