@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrinterService } from 'src/printer/printer.service';
-import { getBasicChartSvgReporter, orderByIdReport } from 'src/reports';
+import {
+  getBasicChartSvgReporter,
+  getStatisticsReport,
+  orderByIdReport,
+} from 'src/reports';
 
 @Injectable()
 export class StoreReportsService extends PrismaClient implements OnModuleInit {
@@ -43,6 +47,27 @@ export class StoreReportsService extends PrismaClient implements OnModuleInit {
 
   async getSvgChart() {
     const docDefinition = await getBasicChartSvgReporter();
+    const doc = this.printerService.createPdf(docDefinition);
+    return doc;
+  }
+
+  async getStatistics() {
+    const topCountries = await this.customers.groupBy({
+      by: ['country'],
+      _count: true,
+      orderBy: {
+        _count: {
+          country: 'desc',
+        },
+      },
+      take: 10,
+    });
+
+    console.log(topCountries);
+
+    // select count(*), country from customers group by country order by count(*) desc limit 10
+
+    const docDefinition = getStatisticsReport();
     const doc = this.printerService.createPdf(docDefinition);
     return doc;
   }

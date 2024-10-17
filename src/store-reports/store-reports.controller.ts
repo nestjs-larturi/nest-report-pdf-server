@@ -51,4 +51,25 @@ export class StoreReportsController {
     pdfDoc.pipe(response);
     pdfDoc.end();
   }
+
+  @Get('statistics')
+  @ApiTags('store-reports') // Swagger
+  @ApiOperation({ summary: 'General statistics from the enterprise' }) // Swagger
+  @ApiResponse({
+    status: 200,
+    description: 'General statistics from the enterprise',
+  }) // Swagger
+  async statistics(@Res() response: Response) {
+    const pdfDoc = await this.storeReportsService.getStatistics();
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename=filename.pdf',
+    );
+
+    pdfDoc.info.Title = 'Statistics-Report.pdf';
+    pdfDoc.pipe(response);
+    pdfDoc.end();
+  }
 }
