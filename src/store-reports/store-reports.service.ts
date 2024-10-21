@@ -63,11 +63,15 @@ export class StoreReportsService extends PrismaClient implements OnModuleInit {
       take: 10,
     });
 
-    console.log(topCountries);
+    const topCountryData = topCountries.map(({ country, _count }) => ({
+      country: country,
+      customers: _count,
+    }));
 
-    // select count(*), country from customers group by country order by count(*) desc limit 10
+    const docDefinition = await getStatisticsReport({
+      topCountries: topCountryData,
+    });
 
-    const docDefinition = getStatisticsReport();
     const doc = this.printerService.createPdf(docDefinition);
     return doc;
   }
